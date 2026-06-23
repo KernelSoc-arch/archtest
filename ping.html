@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+</head>
+<body>
+
+<button onclick="runPing()">Test Ping</button>
+
+<pre id="output">Click the button to start...</pre>
+
+<script>
+async function runPing() {
+  const output = document.getElementById("output");
+  output.textContent = "Pinging...";
+
+  const url = "https://example.com";
+
+  const start = performance.now();
+
+  try {
+    await fetch(url, { mode: "no-cors" });
+    const end = performance.now();
+
+    const time = (end - start).toFixed(2);
+
+    output.textContent =
+      "Ping target: " + url + "\n" +
+      "Approx latency: " + time + " ms\n" +
+      "(Note: no-cors mode means this is approximate, not a real HTTP status check)";
+  } catch (err) {
+    output.textContent = "Ping failed: " + err;
+  }
+}
+</script>
+
+</body>
+</html>
