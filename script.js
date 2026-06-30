@@ -5,56 +5,38 @@ const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const modelSelect = document.getElementById('model-select');
 
-let conversationHistory = [];
-
-// Automatically load the key if you saved it previously
+// Load key from storage
 if (localStorage.getItem('gemmaApiKey')) {
     apiKeyInput.value = localStorage.getItem('gemmaApiKey');
 }
 
-// Save the key to your local browser storage (keeps it off GitHub)
 saveKeyBtn.addEventListener('click', () => {
     localStorage.setItem('gemmaApiKey', apiKeyInput.value);
-    alert('API Key saved locally!');
+    alert('Key saved!');
 });
 
 sendBtn.addEventListener('click', sendMessage);
-
-// Allow pressing Enter to send (but Shift+Enter for new line)
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
 
 async function sendMessage() {
     const text = userInput.value.trim();
     const apiKey = apiKeyInput.value.trim();
     
-    if (!text) return;
-    if (!apiKey) {
-        alert('Please enter and save your API key first.');
-        return;
-    }
+    if (!text || !apiKey) return alert('Fill in the key and a message!');
 
     addMessage(text, 'user');
     userInput.value = '';
     
-    conversationHistory.push({ role: 'user', content: text });
-
     const typingMsg = addMessage('Thinking...', 'bot');
 
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        // Updated URL for Google AI Studio
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelSelect.value}:generateContent?key=${apiKey}`;
+
+        const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: modelSelect.value,
-                messages: conversationHistory
+                contents: [{ parts: [{ text: text }] }]
             })
         });
 
@@ -62,9 +44,9 @@ async function sendMessage() {
         
         if (data.error) throw new Error(data.error.message);
 
-        const botReply = data.choices[0].message.content;
+        // Google returns content in a specific nested object structure
+        const botReply = data.candidates[0].content.parts[0].text;
         typingMsg.innerText = botReply;
-        conversationHistory.push({ role: 'assistant', content: botReply });
 
     } catch (error) {
         typingMsg.innerText = 'Error: ' + error.message;
@@ -76,8 +58,6 @@ function addMessage(text, sender) {
     msgDiv.classList.add('message', sender);
     msgDiv.innerText = text;
     chatBox.appendChild(msgDiv);
-    
-    // Auto-scroll to the bottom
     chatBox.scrollTop = chatBox.scrollHeight;
     return msgDiv;
 }
