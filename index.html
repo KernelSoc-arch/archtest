@@ -3,15 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oh Hey Mate</title>
+    <title>Gemma 4 Chat</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="chat-container">
+        <header>
+            <select id="model-select">
+                <option value="google/gemma-4-26b-a4b-it">Gemma 4 26B A4B IT</option>
+                <option value="google/gemma-4-31b-it">Gemma 4 31B IT</option>
+            </select>
+            <input type="password" id="api-key" placeholder="Paste API Key here..." />
+            <button id="save-key">Save Key</button>
+        </header>
 
-    <font face="Times New Roman, Times, serif">
-        <h1>oh hey mate</h1>
-    </font>
-    
-    <img src="Greg_Heffley.svg" alt="">
+        <main id="chat-box"></main>
 
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Type a message..."></textarea>
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
